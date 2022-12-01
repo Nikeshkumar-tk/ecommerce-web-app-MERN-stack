@@ -1,46 +1,28 @@
-const Product = require('../models/Product')
-const asyncHandler = require('express-async-handler')
-
-//@desc Adding a new product to the database
-//@route Protected
-
-const addProduct = asyncHandler(async (req, res) => {
-    const { name, price, description } = req.body
-
-    if (name && price) {
-
-        //Checking for duplication
-
-        const duplicateProduct = await Product.findOne({ name: name })
-
-        if (duplicateProduct) return res.status(409).json({ message: "This product already exists in the database" })
-
-        let productObj = {
-            name,
-            price
-
-        }
+const mongoose = require("mongoose")
+const asyncHandler = require("express-async-handler")
+const connectDatabase = require('../configs/db')
 
 
-        if (description) {
 
-            productObj.description = description
+const fetchAllProducts = asyncHandler(async (req, res) => {
+    connectDatabase()
+    const connection = mongoose.connection
+    
 
-        }
 
-        //Creating new product in the database
-
-        const product = await Product.create(productObj)
-
-        if (!product) return res.status(500).json({ message: "something went wrong" })
-
+        const Products = connection.db.collection("products")
+    
+        const fetchedProducts = await Products.find().toArray()
+    
+        if (!fetchedProducts) return res.status(500).json({ message: "Something went wrong" })
+    
         return res.status(200).json({
-            message: `New product ${name} added`
+            message: "Successfully fetched all products",
+            products: fetchedProducts
         })
-
-
-    }else{
-        return res.status(422).json({message:"Please provide essential details"})
-    }
-
+   
 })
+
+
+
+module.exports = { fetchAllProducts }
