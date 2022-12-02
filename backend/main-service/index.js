@@ -1,6 +1,6 @@
 const express = require('express')
 const { default: mongoose } = require('mongoose')
-connectDatabase = require('./configs/db')
+const {connectDb} = require('./configs/db')
 const userRoutes = require('./routes/userRoutes')
 const productRoutes = require('./routes/productRoutes')
 
@@ -10,8 +10,7 @@ const app = express()
 require("dotenv").config()
 
 //Calling database connection function
-connectDatabase()
-
+connectDb()
 //PORT configurations
 const PORT = process.env.PORT || 5000
 
@@ -25,7 +24,9 @@ app.use(express.json())
 app.use("/", userRoutes)
 app.use("/getproducts", productRoutes)
 
+//Getting database connection
 
+const mongooseConnection = mongoose.connection
 // Checking database connection
 try {
 
@@ -39,4 +40,7 @@ try {
     })
 } catch (err) {
     console.log("Unable to connect to database")
+    throw new Error("Database connection failed")
 }
+
+module.exports = { mongooseConnection }

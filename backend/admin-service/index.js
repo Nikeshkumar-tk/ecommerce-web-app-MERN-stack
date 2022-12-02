@@ -9,6 +9,7 @@ require('dotenv').config()
 //Router imports
 
 const productRoutes = require('./routes/productRoutes')
+const AdminUserRoutes = require('./routes/adminUserRoutes')
 
 //PORT 
 const PORT = process.env.PORT || 5001
@@ -22,6 +23,7 @@ connectDb()
 //Routes
 
 app.use("/products", productRoutes)
+app.use("/auth", AdminUserRoutes)
 
 try{
     mongoose.connection.once("open", () => {
