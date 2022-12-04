@@ -2,7 +2,7 @@ const User = require('../models/User')
 const asyncHandler = require('express-async-handler')
 const { hashPassword, verifyPassword } = require('../configs/hashPassword')
 const generateToken = require("../configs/authorization/jwtSign")
-const { lookup } = require("geoip-lite")
+
 
 
 //@route /register
