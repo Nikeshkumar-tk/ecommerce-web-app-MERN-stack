@@ -1,14 +1,15 @@
-const mongoose = require('mongoose')
 const User = require('../models/User')
-const expressAsyncHandler = require('express-async-handler')
-const hashPassword = require('../configs/hashPassword')
+const asyncHandler = require('express-async-handler')
+const { hashPassword, verifyPassword } = require('../configs/hashPassword')
+const generateToken = require("../configs/authorization/jwtSign")
+const { lookup } = require("geoip-lite")
 
 
 //@route /register
 //@desc Creating a new user
 //@acess not protected
 
-const registerUser = expressAsyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
 
     const { username, email, password } = req.body
 
@@ -46,5 +47,30 @@ const registerUser = expressAsyncHandler(async (req, res) => {
 
 })
 
+const userLogin = asyncHandler(async (req, res) => {
 
-module.exports = { registerUser }
+    const { email, password } = req.body
+
+    console.log(req.socket.remotePort)
+    //Check wheather the user exists
+
+    if (!email || !password) return res.status(404).json({ message: "Please provide essential details" })
+
+    const foundedUser = await User.findOne({ email: email })
+
+    if (!foundedUser) return res.status(404).json({ message: " This email doenot exists " })
+
+    const passwordVerified = await verifyPassword(password, foundedUser.password)
+
+    if (!passwordVerified) return res.status(401).json({ message: "Incorrect password" })
+
+    return res.status(200).json({
+        message: "Logged in succesfully",
+        token: generateToken(foundedUser._id)
+    })
+
+
+})
+
+
+module.exports = { registerUser, userLogin }
