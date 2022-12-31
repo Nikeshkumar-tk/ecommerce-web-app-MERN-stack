@@ -1,7 +1,7 @@
 const express = require('express')
 const { default: mongoose } = require('mongoose')
 const {connectDb} = require('./configs/db')
-const userRoutes = require('./routes/userRoutes')
+const authRoutes = require('./routes/authRoutes')
 const productRoutes = require('./routes/productRoutes')
 
 // Initializing the application
@@ -21,8 +21,8 @@ app.use(express.json())
 
 //Requests
 
-app.use("/", userRoutes)
-app.use("/getproducts", productRoutes)
+app.use("/auth", authRoutes)
+app.use("/products", productRoutes)
 
 //Getting database connection
 

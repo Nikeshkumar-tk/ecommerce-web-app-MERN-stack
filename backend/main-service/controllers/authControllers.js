@@ -1,13 +1,13 @@
 const User = require('../models/User')
 const asyncHandler = require('express-async-handler')
 const { hashPassword, verifyPassword } = require('../configs/hashPassword')
-const generateToken = require("../configs/authorization/jwtSign")
+const {generateAccessToken, generateRefreshTokenToken} = require("../configs/authorization/jwtSign")
 
 
 
-//@route /register
+//@route auth/register
 //@desc Creating a new user
-//@acess not protected
+//@acess public
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -63,10 +63,20 @@ const userLogin = asyncHandler(async (req, res) => {
     const passwordVerified = await verifyPassword(password, foundedUser.password)
 
     if (!passwordVerified) return res.status(401).json({ message: "Incorrect password" })
-
+    
+    const accessToken = generateAccessToken(foundedUser._id)
+    const refreshToken = generateRefreshTokenToken(foundedUser._id)
+    
+    res.cookie('jwt', refreshToken, {
+        httpOnly: true, //accessible only by web server 
+        secure: true, //https
+        sameSite: 'None', //cross-site cookie 
+        maxAge: 7 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    })
+    
     return res.status(200).json({
         message: "Logged in succesfully",
-        token: generateToken(foundedUser._id)
+        accessToken 
     })
 
 
